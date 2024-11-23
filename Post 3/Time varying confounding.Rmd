@@ -2,7 +2,10 @@
 title: "Causal inference, social media, and mental health, part 3"
 author: "Stephen Wild"
 date: "2024-11-23"
-output: html_document
+output: 
+    html_document:
+        toc: true
+        toc_Depth: 3
 ---
 
 ```{r setup, include=FALSE}
@@ -33,8 +36,6 @@ DAG_coords <- list(x = c(MH1 = 1, MH2 = 2,
 
 
 ```
-* TOC  
-{:toc}
 
 I spent a while trying to figure out how best to arrange this post. Unlike the last couple posts, this one is going to be a bit more didactic. But I think it's worth it, because it illustrates how hard it is to estimate the direct effect of social media on mental health, **even when you have longitudinal data**.
 
@@ -104,10 +105,10 @@ One key element of DAGs is that they are **acyclic**--that is, causation can onl
 
 ## Defining a few terms and variables
 Before we continue, I'm going to define a few terms that I will use below.
-* **exposure**: this is the thing whose causal effect we wish to estimate. In our case, social media is our exposure.
-* **outcome**: this is the variable that we are monitoring during our study. Outcomes are affected by exposures.
-* **node**: a variable. It can be observed or unobserved.
-* **edges**: The arrows that flow from one variable to another.
+* **exposure**: this is the thing whose causal effect we wish to estimate. In our case, social media is our exposure.  
+* **outcome**: this is the variable that we are monitoring during our study. Outcomes are affected by exposures.  
+* **node**: a variable. It can be observed or unobserved.  
+* **edges**: The arrows that flow from one variable to another.  
 
 Next, we'll define our variables. You'll see these variables used in our DAG.
 * SM1 and SM2 represent social media use at time 1 and time 2. SM2 is our exposure.

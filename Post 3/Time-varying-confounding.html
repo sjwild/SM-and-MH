@@ -357,11 +357,51 @@ health, part 3</h1>
 
 </div>
 
-
+<div id="TOC">
 <ul>
-<li>TOC<br />
-{:toc}</li>
+<li><a href="#dags" id="toc-dags">DAGs</a>
+<ul>
+<li><a href="#what-are-dags" id="toc-what-are-dags">What are DAGs?</a>
+<ul>
+<li><a href="#confounding-colliders-and-mediators" id="toc-confounding-colliders-and-mediators">Confounding, colliders, and
+mediators</a></li>
+<li><a href="#dags-are-acyclic" id="toc-dags-are-acyclic">DAGs are
+acyclic</a></li>
+</ul></li>
+<li><a href="#defining-a-few-terms-and-variables" id="toc-defining-a-few-terms-and-variables">Defining a few terms and
+variables</a></li>
+</ul></li>
+<li><a href="#building-our-dag" id="toc-building-our-dag">Building our
+DAG</a>
+<ul>
+<li><a href="#first-dag-and-confounding" id="toc-first-dag-and-confounding">First DAG and confounding</a></li>
+<li><a href="#a-more-complicted-dag-with-covariates" id="toc-a-more-complicted-dag-with-covariates">A more complicted DAG
+with covariates</a></li>
+<li><a href="#a-reasonable-dag-for-the-effect-of-social-media-on-mental-health" id="toc-a-reasonable-dag-for-the-effect-of-social-media-on-mental-health">A
+reasonable DAG for the effect of social media on mental health</a></li>
+</ul></li>
+<li><a href="#what-does-it-mean" id="toc-what-does-it-mean">What does it
+mean?</a>
+<ul>
+<li><a href="#observational-longitudinal-studies" id="toc-observational-longitudinal-studies">Observational longitudinal
+studies</a></li>
+<li><a href="#instrumental-variables-and-social-media-reduction-experiments" id="toc-instrumental-variables-and-social-media-reduction-experiments">Instrumental
+variables and social media reduction experiments</a>
+<ul>
+<li><a href="#caution-is-always-warranted" id="toc-caution-is-always-warranted">Caution is always
+warranted</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#putting-it-all-together" id="toc-putting-it-all-together">Putting it all together</a></li>
+<li><a href="#thank-you-references-and-other-reading" id="toc-thank-you-references-and-other-reading">Thank you, references,
+and other reading</a>
+<ul>
+<li><a href="#references-and-other-reading" id="toc-references-and-other-reading">References and other
+reading</a></li>
+</ul></li>
 </ul>
+</div>
+
 <p>I spent a while trying to figure out how best to arrange this post.
 Unlike the last couple posts, this one is going to be a bit more
 didactic. But I think it’s worth it, because it illustrates how hard it
@@ -473,11 +513,13 @@ reasonable is another thing entirely.</p>
 <h2>Defining a few terms and variables</h2>
 <p>Before we continue, I’m going to define a few terms that I will use
 below. * <strong>exposure</strong>: this is the thing whose causal
-effect we wish to estimate. In our case, social media is our exposure. *
-<strong>outcome</strong>: this is the variable that we are monitoring
-during our study. Outcomes are affected by exposures. *
-<strong>node</strong>: a variable. It can be observed or unobserved. *
-<strong>edges</strong>: The arrows that flow from one variable to
+effect we wish to estimate. In our case, social media is our
+exposure.<br />
+* <strong>outcome</strong>: this is the variable that we are monitoring
+during our study. Outcomes are affected by exposures.<br />
+* <strong>node</strong>: a variable. It can be observed or
+unobserved.<br />
+* <strong>edges</strong>: The arrows that flow from one variable to
 another.</p>
 <p>Next, we’ll define our variables. You’ll see these variables used in
 our DAG. * SM1 and SM2 represent social media use at time 1 and time 2.
