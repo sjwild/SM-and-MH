@@ -44,11 +44,11 @@ Part of my inspiration comes from a recent article by [Rudolph and Kim (2024)](h
 Compared to my earlier posts, I want this post to stand alone. I've therefore devoted some time time to briefly explain the concepts in the DAG, define a few terms, and so on. As always, feedback is welcome, especially if you think I am wrong.
 
 # DAGs
-I'm going to give a **very** brief overview of DAGs. That is, I will hopefully provide jsut enough detail to help you get acquainted with them if you are not already. This means that I am leaving a lot of important detail out. So don't consider this an introduction to DAGs. 
+I'm going to give a **very** brief overview of DAGs. That is, I will hopefully provide just enough detail to help you get acquainted with them if you are not already. This means that I am leaving a lot of important detail out. So don't consider this an introduction to DAGs. 
 
-IF you want to learn more about DAGs or think what I have written below is unclear, I suggest you consult some of these resources if you are interested. In terms of free open resources, I strongly recommend [Tennant et al (2020)](https://academic.oup.com/ije/article/50/2/620/6012812), [Rohrer 2018](https://journals.sagepub.com/doi/full/10.1177/2515245917745629), chapters 6 to 9 of [Huntington-Klein (2022)](https://theeffectbook.net/index.html), chapter 3 of [Cunningham (2021)](https://mixtape.scunning.com/03-directed_acyclical_graphs), and chapters 6 to 10 of [Robins and Hernan (2024)](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Hernan also has a great [video series](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions) on DAGs (don't pay for it. You can currently watch it for free). [Bulbulia (2024)](https://www.cambridge.org/core/journals/evolutionary-human-sciences/article/methods-in-causal-inference-part-1-causal-diagrams-and-confounding/E734F72109F1BE99836E268DF3AA0359) is a nice new addition.
+If you want to learn more about DAGs or think what I have written below is unclear, I suggest you consult some of these resources if you are interested. In terms of free open resources, I strongly recommend [Tennant et al (2020)](https://academic.oup.com/ije/article/50/2/620/6012812), [Rohrer 2018](https://journals.sagepub.com/doi/full/10.1177/2515245917745629), chapters 6 to 9 of [Huntington-Klein (2022)](https://theeffectbook.net/index.html), chapter 3 of [Cunningham (2021)](https://mixtape.scunning.com/03-directed_acyclical_graphs), and chapters 6 to 10 of [Robins and Hernan (2024)](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Hernan also has a great [video series](https://www.edx.org/learn/data-analysis/harvard-university-causal-diagrams-draw-your-assumptions-before-your-conclusions) on DAGs (don't pay for it. You can currently watch it for free). [Bulbulia (2024)](https://www.cambridge.org/core/journals/evolutionary-human-sciences/article/methods-in-causal-inference-part-1-causal-diagrams-and-confounding/E734F72109F1BE99836E268DF3AA0359) is a nice new addition.
 
-Generally, everything I discuss below is inspired by the sources above, so consult them if you have questions. I have some more resources below to consult if you want more detail on DAGs or to see DAGs in application. But no SWIGs today.
+Generally, everything I discuss below is inspired by or comes from the sources above, so consult them if you have questions. I have some more resources below to consult if you want more detail on DAGs or to see DAGs in application. But no SWIGs today.
 
 ## What are DAGs?
 A DAG is Directed Acyclic Graph. They go by other names, including causal graphs, causal diagrams, and structural causal models. The basic idea is that we can draw arrows from one variable to another to show which direction we think causation flows. Using these causal paths, we can figure out which variables to include in our regression to make sure that all backdoor paths are closed OR no new paths are opened. Basically, it helps us figure out which variables to include or exclude from our regression.
@@ -104,19 +104,19 @@ The bottom DAG shows a mediator. We have an arrow going from X to M, and another
 One key element of DAGs is that they are **acyclic**--that is, causation can only flow in one direction. X can influence Y, but Y cannot simultaneously influence X. This matters for us, because when we think about social media and mental health, there are feedback loops. My mental health influences how much social media I use, which influences my mental health. To account for this, we need to draw DAGs that account for the time element in our relationship. Which came first, the chicken or the egg, doesn't matter for us here. What matters is that we can use DAGs to illustrate the relationship now that social media is in place. The relationship won't be exact, but that's fine. DAGs merely help us illustrate our asumed relationship and make those assumptions clear to others. Whether we have accurately captured the relationship and whether are assumptions are reasonable is another thing entirely.
 
 ## Defining a few terms and variables
-Before we continue, I'm going to define a few terms that I will use below.
-* **exposure**: this is the thing whose causal effect we wish to estimate. In our case, social media is our exposure.  
+Before we continue, I'm going to define a few terms that I will use below.  
+* **exposure**: this is the thing whose causal effect we wish to estimate. In our case, social media is our exposure.    
 * **outcome**: this is the variable that we are monitoring during our study. Outcomes are affected by exposures.  
 * **node**: a variable. It can be observed or unobserved.  
 * **edges**: The arrows that flow from one variable to another.  
 
 Next, we'll define our variables. You'll see these variables used in our DAG.
-* SM1 and SM2 represent social media use at time 1 and time 2. SM2 is our exposure.
-* MH1 and MH2 are mental health at time 1 and time 2. MH2 is our outcome variable.
-* X1 and X2 represent observed covariates for individuals in our study. These could be things like household income, gender, age, and so on.
-* Ui is individual-level time-invariant unobserved variable. This is a variable that may affect an individual's mental health, observed covariates, and social media use but for which we don't have an observation. An example would be individual *i*'s personality, for instance. 
-* U1 and U2 are time-invariant unobserved variables that affect the individual. These variables affect an individuals' mental health, social media use, and covariates (X1 and X2). Unlike Ui, however, they vary over time. An example would be a teen's parents getting a new job that requires them to be out of the house more. This would affect income, and maybe spending less time with the teen leads to poorer mental health for the teen, and gives them more time to spend on social media.
-* W1 and W2 are unobserved variables at time 1 and time 2 and are directly related only to ssocial media use and mental health (but not observerd covariates). W1 and W2 are how social media can affect an indiviudal even if they are not using social media. An example of this type of unobserved variable could include a new social media platform launching that cause someone to switch platforms, changes to an existing platform's algorithm that affect use and mental health, or changes in how your friends use social media, which in turn affects your mental health and how you use social media. 
+* SM1 and SM2 represent social media use at time 1 and time 2. SM2 is our exposure.  
+* MH1 and MH2 are mental health at time 1 and time 2. MH2 is our outcome variable.  
+* X1 and X2 represent observed covariates for individuals in our study. These could be things like household income, gender, age, and so on.  
+* Ui is individual-level time-invariant unobserved variable. This is a variable that may affect an individual's mental health, observed covariates, and social media use but for which we don't have an observation. An example would be individual *i*'s personality, for instance.   
+* U1 and U2 are time-invariant unobserved variables that affect the individual. These variables affect an individuals' mental health, social media use, and covariates (X1 and X2). Unlike Ui, however, they vary over time. An example would be a teen's parents getting a new job that requires them to be out of the house more. This would affect income, and maybe spending less time with the teen leads to poorer mental health for the teen, and gives them more time to spend on social media.  
+* W1 and W2 are unobserved variables at time 1 and time 2 and are directly related only to ssocial media use and mental health (but not observerd covariates). W1 and W2 are how social media can affect an indiviudal even if they are not using social media. An example of this type of unobserved variable could include a new social media platform launching that cause someone to switch platforms, changes to an existing platform's algorithm that affect use and mental health, or changes in how your friends use social media, which in turn affects your mental health and how you use social media.   
 
 # Building our DAG
 To build up our DAG, we're going to start really simple and gradually make it more representative of the real world we'd encounter in an observational or experimental study. The point here is that DAG serves as a useful abstraction of the real world, not that it mimic the real world exactly.
@@ -191,7 +191,7 @@ ggdag(simple_dag_covariates)
 
 ```
 
-Now we're starting to get to something more realistic. Our DAG features a treatment, our exposure (social media use at time 2), our outcome (mental health at time 2), and covariates that affect our mental health and social media use. Even though it is more complicated that the simpler one we presented above, we can sstill recover our causal effect if we control for mental health at time 1 and our covariates at time 2. That is, we need to control for MH1 and X2. Although there are a bunch of arrows, including these two variables allow us to close all the backdoor paths.
+Now we're starting to get to something more realistic. Our DAG features our exposure (social media use at time 2), our outcome (mental health at time 2), and covariates that affect our mental health and social media use. Even though it is more complicated that the simpler one we presented above, we can still recover our causal effect if we control for mental health at time 1 and our covariates at time 2. That is, we need to control for MH1 and X2. Although there are a bunch of arrows, including these two variables allow us to close all the backdoor paths.
 
 But of course our DAG isn't entirely reasonable yet. We are missing a couple of other really important variables that we need to include.
 
@@ -293,7 +293,7 @@ I think our only real hope to estimate the direct effect of social media use is 
 
 When someone agrees to participate in a social media reduction experiment, they are randomly assigned to one of two groups: a treatment group, under which they reduce their use of social media, or a control group, under which they continue to use social media as they normally would. What matters here is that the researchers are **not** experimentally manipulating participants social media use. Instead, the researchers are encouraging the participants to reduce their use, and the participants comply. This is a classic set up for an instrumental variable.
 
-In the DAG below, you can see our instrument, Z, with an arrow heading into X2. There are no other arrows from Z to MH2, and no arrows heading into Z. And we know there are no arrows heading into Z because Z is randomly assigned by the researchers.
+In the DAG below, you can see our instrument, Z, with an arrow heading into SM2. There are no other arrows from Z to MH2, and no arrows heading into Z. And we know there are no arrows heading into Z because Z is randomly assigned by the researchers.
 
 ```{r DAG with IV}
 
