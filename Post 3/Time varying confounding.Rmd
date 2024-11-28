@@ -53,10 +53,12 @@ Generally, everything I discuss below is inspired by or comes from the sources a
 ## What are DAGs?
 A DAG is Directed Acyclic Graph. They go by other names, including causal graphs, causal diagrams, and structural causal models. The basic idea is that we can draw arrows from one variable to another to show which direction we think causation flows. Using these causal paths, we can figure out which variables to include in our regression to make sure that all backdoor paths are closed OR no new paths are opened. Basically, it helps us figure out which variables to include or exclude from our regression.
 
+One important things we want to try do is close *backdoor paths*. Backdoor paths are ways by which our variable of interest can be associated with the outcome but in a non-causal way.
+
 ### Confounding, colliders, and mediators
 There are three primary relationships we are concerned about:  
 * **confounding**: Where one variable causes two others. We want to include confounders in our regression.  
-* **colliders**: When a variable is caused by two others. We want to exclude them from our regression, because they can open backdoor paths.  
+* **colliders**: When a variable is caused by two others. We generally want to exclude them from our regression, because they can open backdoor paths.  
 * **mediators** when one variable is on the path from one variable to another. We generally want to exclue mediators from our regressions (some exceptions apply, especially in Structural Equation Modelling).  
 
 ```{r confounding, collider, mediator}
@@ -94,14 +96,14 @@ p_confounding + p_collider + p_mediator + plot_layout(ncol = 1)
 
 To keep things simple, for our purposes we want to avoid conditioning on a collider or a mediator and we want to condition on a cofounder. Why?
 
-Look at the image above. in the top DAG, we have an arrow going from U to X and from U to Y. There is no arrow from X to Y. This means that X and Y will appear associated unless we control for U. Sometimes it's fine--we can see U and control for it. But sometimes it isn't, especially when U is unobserved. And U is often unobserved. The key message here is that we want to control for confounding.
+Look at the image above. in the top DAG, we have an arrow going from $U$ to $X$ and from $U$ to $Y$. There is no arrow from $X$ to $Y$, meaning that $X$ does not cause $Y$. This means that $X$ and $Y$ will appear associated unless we control for $U$. Sometimes it's fine--we can see $U$ and control for it. But sometimes it isn't, especially when $U$ is unobserved. And $U$ is often unobserved. The key message here is that we want to control for confounding. If we don't control for it, we have a backdoor path from $X \rightarrow Y$.
 
-The middle DAG shows a collider. Here, X and Y each have an arrow into C. There is no arrow from X to Y. In this scenario, we do not want to control for C. Why? An example helps. The standard example is beauty and talent in hollywood actors and actresses. In the general population, acting talent and beauty are unrelated. That is, there is no arrow from X (talent) to Y (beauty) or vice versa. But to succeed in hollywood, an actor or actress needs to talented or beautiful. Talented actors and actresses do not need to be beautiful, and beautiful actors and actresses do not need to be talented. If we look only at hollywood, we would think that individuals are either talented or beautiful, but not both. The key message about collidrs is that we **do not** want to control for them.
+The middle DAG shows a collider. Here, $X$ and $Y$ each have an arrow into $C$. There is no arrow from $X$ to $Y$. In this scenario, we do not want to control for $C$. Why? Because both $X$ and $Y$ cause the collider, so it will make $X$ and $Y$ appear associated even though they are not. An example helps. The standard example is beauty and talent in Hollywood actors and actresses. In the general population, acting talent and beauty are unrelated. That is, there is no arrow from $X$ (talent) to $Y$ (beauty) or vice versa. But to succeed in Hollywood, an actor or actress needs to talented, beautiful or both. Talented actors and actresses do not need to be beautiful, and beautiful actors and actresses do not need to be talented. If we look only at Hollywood, we would think that individuals are either talented or beautiful, but not both. The key message about colliders is that we generally **do not** want to control for them. Sometimes we need to, especially if something is both a confouner and a collider. If all backdoor paths involving the collider can be closed otherwise, then we can condition on our collider.
 
-The bottom DAG shows a mediator. We have an arrow going from X to M, and another form M to Y. There is no arrow that goe directly from X to Y. Here, our causal relationship is mediated by M. If we control for M, we interrupt the path from X to Y, and it will look like X does not cause Y. Sometime we do not want to control for mediators, but sometimes we do. It's complicated.
+The bottom DAG shows a mediator. We have an arrow going from $X$ to $M$, and another form $M$ to $Y$. There is no arrow that goe directly from $X$ to $Y$. Here, our causal relationship is mediated by $M$. If we control for $M$, we interrupt the path from $X$ to $Y$, and it will look like $X$ does not cause $Y$. Sometime we do not want to control for mediators, but sometimes we do. It's complicated.
 
 ### DAGs are acyclic
-One key element of DAGs is that they are **acyclic**--that is, causation can only flow in one direction. X can influence Y, but Y cannot simultaneously influence X. This matters for us, because when we think about social media and mental health, there are feedback loops. My mental health influences how much social media I use, which influences my mental health. To account for this, we need to draw DAGs that account for the time element in our relationship. Which came first, the chicken or the egg, doesn't matter for us here. What matters is that we can use DAGs to illustrate the relationship now that social media is in place. The relationship won't be exact, but that's fine. DAGs merely help us illustrate our asumed relationship and make those assumptions clear to others. Whether we have accurately captured the relationship and whether are assumptions are reasonable is another thing entirely.
+One key element of DAGs is that they are **acyclic**--that is, causation can only flow in one direction. $X$ can influence $Y$, but $Y$ cannot simultaneously influence $X$. This matters for us, because when we think about social media and mental health, there are feedback loops. My mental health influences how much social media I use, which influences my mental health. To account for this, we need to draw DAGs that account for the time element in our relationship. Which came first, the chicken or the egg, doesn't matter for us here. What matters is that we can use DAGs to illustrate the relationship now that social media is in place. The relationship won't be exact, but that's fine. DAGs merely help us illustrate our asumed relationship and make those assumptions clear to others. Whether we have accurately captured the relationship and whether are assumptions are reasonable is another thing entirely.
 
 ## Defining a few terms and variables
 Before we continue, I'm going to define a few terms that I will use below.  
@@ -111,12 +113,12 @@ Before we continue, I'm going to define a few terms that I will use below.
 * **edges**: The arrows that flow from one variable to another.  
 
 Next, we'll define our variables. You'll see these variables used in our DAG.
-* SM1 and SM2 represent social media use at time 1 and time 2. SM2 is our exposure.  
-* MH1 and MH2 are mental health at time 1 and time 2. MH2 is our outcome variable.  
-* X1 and X2 represent observed covariates for individuals in our study. These could be things like household income, gender, age, and so on.  
-* Ui is individual-level time-invariant unobserved variable. This is a variable that may affect an individual's mental health, observed covariates, and social media use but for which we don't have an observation. An example would be individual *i*'s personality, for instance.   
-* U1 and U2 are time-invariant unobserved variables that affect the individual. These variables affect an individuals' mental health, social media use, and covariates (X1 and X2). Unlike Ui, however, they vary over time. An example would be a teen's parents getting a new job that requires them to be out of the house more. This would affect income, and maybe spending less time with the teen leads to poorer mental health for the teen, and gives them more time to spend on social media.  
-* W1 and W2 are unobserved variables at time 1 and time 2 and are directly related only to ssocial media use and mental health (but not observerd covariates). W1 and W2 are how social media can affect an indiviudal even if they are not using social media. An example of this type of unobserved variable could include a new social media platform launching that cause someone to switch platforms, changes to an existing platform's algorithm that affect use and mental health, or changes in how your friends use social media, which in turn affects your mental health and how you use social media.   
+* $SM1$ and $SM2$ represent social media use at time 1 and time 2. $SM2$ is our exposure.  
+* $MH1$ and $MH2$ are mental health at time 1 and time 2. $MH2$ is our outcome variable.  
+* $X1$ and $X2$ represent observed covariates for individuals in our study. These could be things like household income, gender, age, and so on.  
+* $Ui$ is individual-level time-invariant unobserved variable. This is a variable that may affect an individual's mental health, observed covariates, and social media use but for which we don't have an observation. An example would be individual $i$'s personality, for instance.   
+* $U1$ and $U2$ are time-invariant unobserved variables that affect the individual. These variables affect an individuals' mental health, social media use, and covariates ($X1$ and $X2$). Unlike $Ui$, however, they vary over time. An example would be a teen's parents getting a new job that requires them to be out of the house more. This would affect income, and maybe spending less time with the teen leads to poorer mental health for the teen, and gives them more time to spend on social media.  
+* $W1$ and $W2$ are unobserved variables at time 1 and time 2 and are directly related only to social media use and mental health (but not observerd covariates). $W1$ and $W2$ are how social media can affect an indiviudal even if they are not using social media. An example of this type of unobserved variable could include a new social media platform launching that cause someone to switch platforms, changes to an existing platform's algorithm that affect use and mental health, or changes in how your friends use social media, which in turn affects your mental health and how you use social media.   
 
 # Building our DAG
 To build up our DAG, we're going to start really simple and gradually make it more representative of the real world we'd encounter in an observational or experimental study. The point here is that DAG serves as a useful abstraction of the real world, not that it mimic the real world exactly.
@@ -126,7 +128,7 @@ To build up our DAG, we're going to assume that there are two timepoints. There 
 ## First DAG and confounding
 Let's start with a simple DAG to illustrate a time series. For what follows, I'll make use of the variables I defined up above.
 
-To start with, we have social media (SM) at time 1 and time 2--like, for instance, in two waves of a survey, or when entering and completing a social media reduction experiment. SM affects our mental health, MH. There are only arrows from SM to MH at each time point. There are no other paths to be concerned about here: no confounding, no colliders, no mediators.
+To start with, we have social media ($SM$) at time 1 and time 2--like, for instance, in two waves of a survey, or when entering and completing a social media reduction experiment. $SM$ affects our mental health, $MH$. There are only arrows from $SM$ to $MH$ at each time point. There are no other paths to be concerned about here: no confounding, no colliders, no mediators.
 
 ```{r First dag}
 first_dag <- dagitty("dag{
@@ -161,7 +163,7 @@ ggdag(simple_dag)
 
 ```
 
-Remember our paths up above. If we look at our simple DAG we see that there is confounding: mental health at time 1 (MH1) affects our mental health at time 2 **AND** our social media use at time 2. So we need to control for mental health at time 1 if we want to estimate the causal effect of our exposure, social media use, at time 2.
+Remember our paths up above. If we look at our simple DAG we see that there is confounding: mental health at time 1 ($MH1$) affects our mental health at time 2 **AND** our social media use at time 2. So we need to control for mental health at time 1 if we want to estimate the causal effect of our exposure, social media use, at time 2.
 
 Now we can start to see why DAGs are useful. Without thinking through our assumptions, I wouldn't have known to control for mental health at time 1. And as a result, I would fail to recover the causal effect of social media at t2 on my mental health at t2. 
 
@@ -191,7 +193,7 @@ ggdag(simple_dag_covariates)
 
 ```
 
-Now we're starting to get to something more realistic. Our DAG features our exposure (social media use at time 2), our outcome (mental health at time 2), and covariates that affect our mental health and social media use. Even though it is more complicated that the simpler one we presented above, we can still recover our causal effect if we control for mental health at time 1 and our covariates at time 2. That is, we need to control for MH1 and X2. Although there are a bunch of arrows, including these two variables allow us to close all the backdoor paths.
+Now we're starting to get to something more realistic. Our DAG features our exposure (social media use at time 2), our outcome (mental health at time 2), and covariates that affect our mental health and social media use. Even though it is more complicated that the simpler one we presented above, we can still recover our causal effect if we control for mental health at time 1 and our covariates at time 2. That is, we need to control for $MH1$ and $X2$. Although there are a bunch of arrows, including these two variables allow us to close all the backdoor paths.
 
 But of course our DAG isn't entirely reasonable yet. We are missing a couple of other really important variables that we need to include.
 
@@ -228,7 +230,10 @@ coordinates(dag_covariates_unobserved) <- DAG_coords
 ggdag(dag_covariates_unobserved)
 ```
 
-The second sort is much harder to control for. These are time-varying unobserved variables. You can see them below represented by U1, U2, W1 and W2. And it's these variables that are going to cause the most trouble. So much trouble, in fact, that it becomes impossible (at least so far as I know) to recover an unbiased causal effect.
+The second sort is much harder to control for. These are time-varying unobserved variables. You can see them below represented by $U1$, $U2$, $W1$ and $W2$. I've also coloured the nodes and edges grey to distinguish them from our observed variables (I have left $Ui$ black because we are controlling for it).
+
+It's these variables that are going to cause the most trouble. So much trouble, in fact, that it becomes impossible (at least so far as I know) to recover an unbiased causal effect. They key reason is that they are unobserved, so cannot completely control for them. 
+
 
 ```{r dag with unobserved time-varying confounding}
 
@@ -242,6 +247,7 @@ dag_covariates_unobserved_u_w <- dagitty("dag{
     X2 -> MH2;
     X1 -> SM1;
     X2 -> SM2;
+    X1 -> X2;
     Ui -> X1;
     Ui -> SM1;
     Ui -> MH1;
@@ -270,17 +276,24 @@ dag_covariates_unobserved_u_w <- dagitty("dag{
 
 coordinates(dag_covariates_unobserved_u_w) <- DAG_coords
 
-ggdag(dag_covariates_unobserved_u_w)
-
+dag_covariates_unobserved_u_w %>% 
+  tidy_dagitty() %>% 
+  mutate(colour = ifelse(name %in% c("U1", "U2", "W1", "W2"), 
+                         "grey50", "black")) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_dag_point(mapping = aes(colour = colour), show.legend = FALSE) +
+    geom_dag_edges(mapping = aes(edge_colour = colour)) +
+    geom_dag_text() + scale_color_manual(values = c("black", "grey50")) +
+    theme_dag()
 ```
 
-These variables--U1, U2, W1 and W2--lead to **time-varying confounding**. Time-varying confounding occurs when we have an unobserved variable that affects both our treatment (social media use) and our menetal health, and that unobserved variable changes over time. Take how your friends use social media. If they use social media more, you use it more. Because you use it more, your social media use also affects your mental health. And because you friends are on social media so much, they can't hang out with you. This also affects your mental health, but through a path other than **your** social media use. Unless you can control for that, you have no way of attributing the variation in your mental health to your social media use, to your friends, or some combination thereof. It all gets jumbled together. 
+These variables--$U1$, $U2$, $W1$ and $W2$--lead to **time-varying confounding**. Time-varying confounding occurs when we have a variable, observed or unobserved, that affects both our treatment (social media use) and our mental health, and that variable changes over time. Take how your friends use social media. If they use social media more, you use it more. Because you use it more, your social media use also affects your mental health. And because you friends are on social media so much, they can't hang out with you. This also affects your mental health, but through a path other than **your** social media use. Unless you can control for that, you have no way of attributing the variation in your mental health to your social media use, to your friends, or some combination thereof. It all gets jumbled together. 
 
 # What does it mean?
 Herein is where the difficulty arises. Our time-varying confounders are unobserved, so we can't control for them. This means that we are going to have an extremely difficult time recovering unbiased causal effects using observational data. Recovering an unbiased causal effect with these time-varying confounders can only be done in a few ways. I want to highlight two of them here.
 
 ## Observational longitudinal studies
-U1 and U2 and W1 and W2 imply a violation of parallel trends and lack of sequential exchangability, which means that many of our usual approaches may not work well. How well they could work depends on the severity of the violations.
+$U1$, $U2$, $W1$ and $W2$ imply a violation of parallel trends and lack of sequential exchangability, which means that many of our usual approaches may not work well. How well they could work depends on the severity of the violations.
 
 Our first hope is that we can find sufficient variables to close the back door paths. One way to do this is to simply to collect even more variables in our longitudinal surveys. The problem here is that we can never collect enough, and that every new variable we use has the potential to be a [bad control](https://journals.sagepub.com/doi/full/10.1177/00491241221099552). Given the state of lot of research in this area, I suspect most variables will end up being bad controls. 
 
@@ -293,7 +306,7 @@ I think our only real hope to estimate the direct effect of social media use is 
 
 When someone agrees to participate in a social media reduction experiment, they are randomly assigned to one of two groups: a treatment group, under which they reduce their use of social media, or a control group, under which they continue to use social media as they normally would. What matters here is that the researchers are **not** experimentally manipulating participants social media use. Instead, the researchers are encouraging the participants to reduce their use, and the participants comply. This is a classic set up for an instrumental variable.
 
-In the DAG below, you can see our instrument, Z, with an arrow heading into SM2. There are no other arrows from Z to MH2, and no arrows heading into Z. And we know there are no arrows heading into Z because Z is randomly assigned by the researchers.
+In the DAG below, you can see our instrument, $Z$, with an arrow heading into $SM2$. There are no other arrows from $Z$ to $MH2$, and no arrows heading into $Z$. And we know there are no arrows heading into $Z$ because $Z$ is randomly assigned by the researchers.
 
 ```{r DAG with IV}
 
@@ -308,6 +321,7 @@ dag_covariates_unobserved_u_w_z <- dagitty("dag{
     X2 -> MH2;
     X1 -> SM1;
     X2 -> SM2;
+    X1 -> X2;
     Ui -> X1;
     Ui -> SM1;
     Ui -> MH1;
@@ -337,12 +351,88 @@ dag_covariates_unobserved_u_w_z <- dagitty("dag{
 
 coordinates(dag_covariates_unobserved_u_w_z) <- DAG_coords
 
-ggdag(dag_covariates_unobserved_u_w_z)
-
+dag_covariates_unobserved_u_w_z %>% 
+  tidy_dagitty() %>% 
+  mutate(colour = ifelse(name %in% c("U1", "U2", "W1", "W2"), 
+                         "grey50", "black")) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_dag_point(mapping = aes(colour = colour), show.legend = FALSE) +
+    geom_dag_edges(mapping = aes(edge_colour = colour)) +
+    geom_dag_text() + scale_color_manual(values = c("black", "grey50")) +
+    theme_dag()
 ```
 
 ### Caution is always warranted
-In social media reduction experiments, however, we need to be careful with our instrumental variable. The reason here is subtle: our instrumental variable may influence mental health directly in addition to doing so through social media use. How? If I am participating in one of these trials, the treatment isn't blinded--that is, I know I am reducing my social media use. That knowledge may influence my mental health even if my social media use did not decrease.
+In social media reduction experiments, however, we need to be careful with our instrumental variable. The reason here is subtle: our instrumental variable may influence mental health directly in addition to doing so through social media use. How? If I am participating in one of these trials, the treatment isn't blinded--that is, I know I am reducing my social media use because the researchers told me to do so. That knowledge may influence my mental health even if my social media use did not decrease.
+
+We can illustrate this violation with our DAG. We can draw a line from $Z$ to our mental health at t2 ($MH2$) to show this violation. I've coloured the edge red to make it clear.
+
+```{r DAG with IV violation}
+
+
+dag_covariates_unobserved_u_w_z <- dagitty("dag{
+    SM1 -> MH1 -> SM2;
+    SM1 -> SM2;
+    SM2 -> MH2;
+    MH1 -> SM2;
+    MH1 -> MH2;
+    X1 -> MH1;
+    X2 -> MH2;
+    X1 -> SM1;
+    X2 -> SM2;
+    X1 -> X2;
+    Ui -> X1;
+    Ui -> SM1;
+    Ui -> MH1;
+    Ui -> SM2;
+    Ui -> MH2;
+    Ui -> X2;
+    U1 -> X1;
+    U1 -> SM1;
+    U1 -> MH1;
+    U1 -> U2;
+    U2 -> SM2;
+    U2 -> MH2;
+    U2 -> X2;
+    W1 -> MH1;
+    W1 -> SM1;
+    W1 -> W2;
+    W2 -> MH2;
+    W2 -> SM2;
+    Z -> SM2;
+    Z [exposure];
+    MH2 [outcome];
+    U1 [unobserved];
+    U2 [unobserved];
+                      }")
+
+dag_line_z_MH2 <- dagitty("dag{
+                          Z -> MH2;
+                          }")
+
+coordinates(dag_covariates_unobserved_u_w_z) <- DAG_coords
+coordinates(dag_line_z_MH2) <- DAG_coords
+
+dag_covariates_unobserved_u_w_z %>% 
+  tidy_dagitty() %>% 
+  mutate(colour = ifelse(name %in% c("U1", "U2", "W1", "W2"), 
+                         "grey50", "black")) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_dag_point(mapping = aes(colour = colour), show.legend = FALSE) +
+    geom_dag_edges(mapping = aes(edge_colour = colour)) +
+    geom_dag_text() + scale_color_manual(values = c("black", "grey50")) +
+    theme_dag() -> p1
+
+dag_line_z_MH2 %>%
+  geom_dag_edges_arc(mapping = aes(x = x, y = y, xend = xend, yend = yend),
+                     edge_colour = "red") -> p2
+
+p1 + p2
+
+
+
+```
+
 
 How bad is this violation? I am not sure, though I suspect the violation is large enough that we should be cautious interpreting the results of these trials as reflecting reduced social media use.
 
